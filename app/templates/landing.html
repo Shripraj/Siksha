@@ -1,0 +1,88 @@
+{% extends "base.html" %}{% block title %}SIKSHA • Learn • Play • Grow{% endblock %}
+{% block body_class %}landing-body{% endblock %}
+{% block content %}
+
+<style>
+  html, body { height: 100%; margin: 0; }
+
+  .hero {
+    min-height: 100vh !important;
+    background-image:
+      linear-gradient(135deg, #061016ee 0%, #07131acc 30%, #06101866 60%, #050a0bdd 100%),
+      url('/static/img/hero-bg.jpg') !important;
+    background-size: cover !important;
+    background-position: center center !important;
+    background-attachment: fixed !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  .hero:after { display: none !important; }
+
+  .hero-grid {
+    flex: 1 !important;
+    min-height: 0 !important;
+    padding: 20px 0 40px !important;
+  }
+</style>
+
+<div class="hero">
+  <header class="topbar container">
+    <a class="brand" href="{{ url_for('main.home') }}">
+      <span class="brand-mark">✦</span>
+      <span><b>SIKSHA</b><small>LEARN • PLAY • GROW</small></span>
+    </a>
+    <nav>
+      <a href="#home">Home</a>
+      <a href="#about">About</a>
+      <a href="#features">Features</a>
+      <a href="#schools">For Schools</a>
+      <a href="#contact">Contact</a>
+    </nav>
+    <a class="outline-btn" href="{{ url_for('auth.login') }}">Get Started</a>
+  </header>
+
+  <main id="home" class="hero-grid container">
+    <section class="hero-copy">
+      <h1>A BRIGHTER<br><span>YOU</span> BEGINS HERE</h1>
+      <p>AI-powered learning platform that makes education an adventure. For Schools, Teachers and Students.</p>
+      <div class="hero-features">
+        <span>◈ <b>Learn</b><small>Actively</small></span>
+        <span>◈ <b>Practice</b><small>Consistently</small></span>
+        <span>♙ <b>Track</b><small>Progress</small></span>
+        <span>◉ <b>Grow</b><small>Confidently</small></span>
+      </div>
+      <a class="gold-btn big" href="#portals">Enter Your Realm <b>→</b></a>
+      <em>"Discipline today, a stronger tomorrow."</em>
+    </section>
+
+    <section id="portals" class="login-realm">
+      <h2>CHOOSE YOUR LOGIN</h2>
+      <p>Enter your portal to continue the journey</p>
+      <div class="portal-grid">
+        <a class="portal school" href="{{ url_for('auth.login') }}?role=school">
+          <div class="portal-icon">♜</div>
+          <h3>SCHOOL</h3>
+          <small>Manage. Track. Empower.</small>
+          <button>School Login →</button>
+        </a>
+        <a class="portal teacher" href="{{ url_for('auth.login') }}?role=teacher">
+          <div class="portal-icon">♙</div>
+          <h3>TEACHER</h3>
+          <small>Guide. Support. Inspire.</small>
+          <button>Teacher Login →</button>
+        </a>
+        <a class="portal student" href="{{ url_for('auth.login') }}?role=student">
+          <div class="portal-icon">♞</div>
+          <h3>STUDENT</h3>
+          <small>Learn. Play. Grow.</small>
+          <button>Student Login →</button>
+        </a>
+      </div>
+      <div class="realm-foot">One platform. A stronger tomorrow.</div>
+    </section>
+  </main>
+</div>
+
+<footer class="footer">SIKSHA • LEARN • PLAY • GROW</footer>
+{% endblock %}

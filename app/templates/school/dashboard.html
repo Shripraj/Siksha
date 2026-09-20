@@ -1,0 +1,72 @@
+{% extends "base.html" %}{% block title %}School Admin • SIKSHA{% endblock %}{% block body_class %}app-body{% endblock %}{% block content %}
+<div class="app-layout">
+  <aside class="sidebar">
+    <a class="brand mini" href="{{url_for('main.home')}}"><span class="brand-mark">✦</span><span><b>SIKSHA</b><small>LEARN • PLAY • GROW</small></span></a>
+    <div class="side-role">SCHOOL ADMIN</div>
+    {% for x in ['Dashboard','Students','Teachers','Classes','Subjects','Syllabus','Attendance','Performance','Reports','Settings'] %}
+    <a class="side-link {% if x=='Dashboard' %}active{% elif x=='Syllabus' %}{% endif %}"
+       href="{% if x=='Dashboard' %}{{url_for('main.school_dashboard')}}{% elif x=='Syllabus' %}{{url_for('main.syllabus')}}{% else %}#{% endif %}">{{x}}</a>
+    {% endfor %}
+    <a class="side-link logout" href="{{url_for('auth.logout')}}">Logout</a>
+  </aside>
+  <main class="dashboard">
+    <header class="dash-head">
+      <div>
+        <span class="eyebrow">SCHOOL ADMIN DASHBOARD</span>
+        <h1>Welcome, {{school.name if school else 'School Admin'}}</h1>
+        <p>Building a brighter future together.</p>
+      </div>
+      <a class="gold-btn" href="{{url_for('main.syllabus')}}">＋ Upload Syllabus</a>
+    </header>
+    <div class="kpi-grid">
+      <div class="kpi"><span>♙</span><b>{{students|length}}<small>Students</small></b><em>+12%</em></div>
+      <div class="kpi"><span>♙</span><b>{{teacher_count}}<small>Teachers</small></b><em>+8%</em></div>
+      <div class="kpi"><span>▣</span><b>{{class_count}}<small>Classes</small></b><em>+0%</em></div>
+      <div class="kpi"><span>✓</span><b>92%<small>Avg. Attendance</small></b><em>+3%</em></div>
+    </div>
+    <div class="dash-grid">
+      <section class="panel">
+        <h2>Overall Performance</h2>
+        <div class="chart">
+          <div style="height:78%"><i>78%</i></div>
+          <div style="height:61%"><i>61%</i></div>
+          <div style="height:70%"><i>70%</i></div>
+          <div style="height:46%"><i>46%</i></div>
+          <div style="height:54%"><i>54%</i></div>
+        </div>
+        <div class="chart-labels"><span>Math</span><span>Science</span><span>English</span><span>Social</span><span>Languages</span></div>
+      </section>
+      <section class="panel">
+        <div class="panel-title"><h2>Students Needing Attention</h2><a href="#">View All</a></div>
+        {% for s in attention[:5] %}
+        <div class="student-row">
+          <span class="avatar">{{s.name[0]}}</span>
+          <span><b>{{s.name}}</b><small>Learning support required</small></span>
+          <strong>{{loop.index * 4 + 28}}%</strong>
+        </div>
+        {% else %}
+        <p class="muted">No students currently below 40%.</p>
+        {% endfor %}
+      </section>
+    </div>
+    <section class="panel" style="margin-top:12px">
+      <h2>All Students</h2>
+      <div class="table">
+        <div class="tr th"><span>Name</span><span>Email</span><span>Class</span><span>Mastery</span><span>Status</span><span>Action</span></div>
+        {% for s in students[:15] %}
+        <div class="tr">
+          <span><b>{{s.name}}</b></span>
+          <span>{{s.email}}</span>
+          <span>10A</span>
+          <span>—</span>
+          <span class="green">Active</span>
+          <span><button class="small-btn">View</button></span>
+        </div>
+        {% else %}
+        <div class="empty">No students registered yet.</div>
+        {% endfor %}
+      </div>
+    </section>
+  </main>
+</div>
+{% endblock %}

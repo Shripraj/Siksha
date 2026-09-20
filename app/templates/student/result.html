@@ -1,0 +1,24 @@
+{% extends "base.html" %}{% block title %}Assessment Result • SIKSHA{% endblock %}{% block body_class %}student-body{% endblock %}{% block content %}
+<main class="result-shell">
+  <div class="result-card">
+    <span class="auth-symbol">✦</span>
+    <h1>QUEST COMPLETE</h1>
+    <p>{{topic.title}}</p>
+    <div class="result-score">{{score | int}}<small>/ 25</small></div>
+    {% if score >= 10 %}
+    <h2 class="green">Quest Cleared</h2>
+    <p>You reached the 40% threshold and can continue your journey.</p>
+    <p style="font-size:12px;color:#72d2b5;margin-top:8px">+{{score * 10}} XP earned</p>
+    {% else %}
+    <h2 class="red">Revision Required</h2>
+    <p>Your score is below 40%. Revise this topic and your teacher will see the support flag.</p>
+    <p style="font-size:12px;color:#e87870;margin-top:8px">Keep going — every attempt builds mastery.</p>
+    {% endif %}
+    <p style="margin-top:16px;font-size:12px;color:#91a1a6">Mastery: <b style="color:#f0c36b">{{progress.mastery | int}}%</b> &nbsp;|&nbsp; Attempts: <b>{{progress.attempts}}</b></p>
+    <a class="gold-btn" href="{{url_for('main.student_dashboard')}}" style="display:block;margin-top:20px">Return to Quest Map →</a>
+    {% if score < 10 %}
+    <a class="ghost-btn" href="{{url_for('main.topic', topic_id=topic.id)}}" style="display:block;margin-top:10px;text-align:center">Review Topic First →</a>
+    {% endif %}
+  </div>
+</main>
+{% endblock %}

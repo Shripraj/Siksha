@@ -1,0 +1,39 @@
+{% extends "base.html" %}{% block title %}{{topic.title}} • SIKSHA{% endblock %}{% block body_class %}student-body{% endblock %}{% block content %}
+<header class="student-nav">
+  <a class="brand" href="{{url_for('main.student_dashboard')}}"><span class="brand-mark">✦</span><span><b>SIKSHA</b><small>LEARN • PLAY • GROW</small></span></a>
+  <nav>
+    <a href="{{url_for('main.student_dashboard')}}">← Quest Map</a>
+  </nav>
+  <a href="{{url_for('auth.logout')}}" class="logout-mini">↪</a>
+</header>
+<main class="lesson-shell">
+  <div class="lesson-hero">
+    <span class="eyebrow">QUEST {{topic.order_index}}</span>
+    <h1>{{topic.title}}</h1>
+    <p>{{topic.chapter}} · Learn the concept, practice it, then prove your mastery.</p>
+  </div>
+  <div class="lesson-grid">
+    <section class="panel lesson">
+      <h2>Learn</h2>
+      <p>Study the approved school material for this topic. This section is generated from the school-scoped RAG knowledge base when a syllabus is uploaded.</p>
+      <div class="lesson-box">
+        <h3>Warrior Brief</h3>
+        <p>Break the concept into small steps. Read the explanation, inspect examples, and complete the practice checkpoints before starting the 25-mark assessment.</p>
+        <p style="margin-top:12px;color:#91a1a6;font-size:12px">Chapter: <b style="color:#f0c36b">{{topic.chapter}}</b> &nbsp;|&nbsp; Subject: <b style="color:#f0c36b">{{topic.order_index}}</b></p>
+      </div>
+    </section>
+    <aside class="panel">
+      <h2>Your Mastery</h2>
+      <div class="big-score">{{progress.mastery | int}}%</div>
+      <div class="xpbar"><i style="width:{{progress.mastery}}%"></i></div>
+      <p style="margin:10px 0 5px">Status: <b>{{progress.status | replace('_',' ') | title}}</b></p>
+      <p style="font-size:11px;color:#91a1a6">Attempts: {{progress.attempts}}</p>
+      {% if progress.status == 'locked' %}
+      <p class="muted" style="font-size:12px;margin-top:10px">Complete previous quests to unlock this topic.</p>
+      {% else %}
+      <a class="gold-btn full" href="{{url_for('main.assessment', topic_id=topic.id)}}">Begin 25-Mark Assessment →</a>
+      {% endif %}
+    </aside>
+  </div>
+</main>
+{% endblock %}

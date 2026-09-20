@@ -1,0 +1,105 @@
+{% extends "base.html" %}{% block title %}Syllabus • SIKSHA{% endblock %}{% block body_class %}app-body{% endblock %}{% block content %}
+<div class="app-layout">
+  <aside class="sidebar">
+    <a class="brand mini" href="{{url_for('main.school_dashboard')}}"><span class="brand-mark">✦</span><span><b>SIKSHA</b><small>LEARN • PLAY • GROW</small></span></a>
+    <div class="side-role">SCHOOL ADMIN</div>
+    <a class="side-link" href="{{url_for('main.school_dashboard')}}">Dashboard</a>
+    <a class="side-link active">Syllabus</a>
+    <a class="side-link logout" href="{{url_for('auth.logout')}}">Logout</a>
+  </aside>
+  <main class="dashboard">
+    <header class="dash-head">
+      <div>
+        <span class="eyebrow">CURRICULUM</span>
+        <h1>Upload Syllabus</h1>
+        <p>Upload your JSON syllabus file — topics are instantly added to every student's quest map.</p>
+      </div>
+    </header>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for c, m in messages %}
+      <div class="flash {{c}}">{{m}}</div>
+      {% endfor %}
+    {% endwith %}
+
+    <section class="panel upload-panel">
+      <h2>Upload Syllabus JSON</h2>
+      <p style="color:#91a1a6;font-size:12px;margin-bottom:18px">
+        Upload the <b style="color:#f0c36b">class10_syllabus.json</b> file. Subjects, chapters and topics are created instantly and assigned to all students.
+      </p>
+      <form method="post" enctype="multipart/form-data" action="{{url_for('main.syllabus_upload')}}">
+        <div class="dropzone" id="dropzone">
+          <div>✦</div>
+          <h2>Drop your JSON file here</h2>
+          <p>or click to browse — accepts <b>.json</b> only</p>
+          <input type="file" name="syllabus" accept=".json" required id="file-input">
+          <div id="file-chosen" style="color:#f0c36b;margin:8px 0;font-size:13px;display:none"></div>
+          <button class="gold-btn" type="submit">Upload & Seed Topics →</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="panel">
+      <h2>Upload History</h2>
+      {% for d in docs %}
+      <div class="doc-row">
+        <span>▤</span>
+        <b>{{d.filename}}</b>
+        <small>{{d.status}}</small>
+        <small style="color:#91a1a6">{{d.created_at.strftime('%d %b %Y, %H:%M') if d.created_at else ''}}</small>
+      </div>
+      {% else %}
+      <p class="muted">No syllabus uploaded yet.</p>
+      {% endfor %}
+    </section>
+
+    <section class="panel">
+      <h2>Current Topics in System</h2>
+      <p style="color:#91a1a6;font-size:11px;margin-bottom:12px">All subjects and topics currently loaded for your school.</p>
+      {% for subj_name, topics in subject_topics.items() %}
+      <div style="margin-bottom:16px">
+        <div style="font:600 13px Cinzel;color:#f0c36b;margin-bottom:6px">{{subj_name}} <span style="color:#91a1a6;font-size:10px;font-family:Inter">({{topics|length}} topics)</span></div>
+        {% for t in topics[:5] %}
+        <div style="font-size:11px;padding:5px 10px;border-left:2px solid #2d4550;margin:3px 0;color:#cdd6d9">
+          {{loop.index}}. {{t.chapter}} → {{t.title}}
+        </div>
+        {% endfor %}
+        {% if topics|length > 5 %}
+        <div style="font-size:10px;color:#91a1a6;padding-left:10px">… and {{topics|length - 5}} more topics</div>
+        {% endif %}
+      </div>
+      {% else %}
+      <p class="muted">No topics seeded yet. Upload a JSON file above.</p>
+      {% endfor %}
+    </section>
+  </main>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+const input = document.getElementById('file-input');
+const label = document.getElementById('file-chosen');
+if (input) {
+  input.addEventListener('change', () => {
+    if (input.files.length) {
+      label.textContent = '✓ ' + input.files[0].name;
+      label.style.display = 'block';
+    }
+  });
+}
+const dz = document.getElementById('dropzone');
+if (dz) {
+  dz.addEventListener('dragover', e => { e.preventDefault(); dz.style.borderColor = '#f0c36b'; });
+  dz.addEventListener('dragleave', () => { dz.style.borderColor = '#6d572e'; });
+  dz.addEventListener('drop', e => {
+    e.preventDefault();
+    dz.style.borderColor = '#6d572e';
+    if (e.dataTransfer.files.length) {
+      input.files = e.dataTransfer.files;
+      label.textContent = '✓ ' + e.dataTransfer.files[0].name;
+      label.style.display = 'block';
+    }
+  });
+}
+</script>
+{% endblock %}

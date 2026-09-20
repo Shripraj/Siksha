@@ -1,0 +1,135 @@
+{% extends "base.html" %}{% block title %}Teacher • SIKSHA{% endblock %}{% block body_class %}app-body{% endblock %}{% block content %}
+<div class="app-layout">
+  <aside class="sidebar">
+    <a class="brand mini" href="{{url_for('main.teacher_dashboard')}}"><span class="brand-mark">✦</span><span><b>SIKSHA</b><small>LEARN • PLAY • GROW</small></span></a>
+    <div class="side-role">TEACHER PORTAL</div>
+    {% for x in ['Dashboard','My Classes','Students','Weak Students','Tests','Assignments','Counselling','Progress','AI Assistant','Reports'] %}
+    <a class="side-link {% if x=='Dashboard'%}active{%endif%}">{{x}}</a>
+    {% endfor %}
+    <a class="side-link logout" href="{{url_for('auth.logout')}}">Logout</a>
+  </aside>
+  <main class="dashboard">
+    <header class="dash-head">
+      <div><span class="eyebrow">TEACHER DASHBOARD</span><h1>Welcome, {{current_user.name}}</h1><p>Every student can grow with the right support.</p></div>
+      <div class="date-chip">This Week<br><b>Nov 11 – Nov 17</b></div>
+    </header>
+    <div class="kpi-grid">
+      <div class="kpi"><span>♙</span><b>{{rows|length}}<small>My Students</small></b></div>
+      <div class="kpi"><span>✓</span><b>78%<small>Avg. Class Score</small></b></div>
+      <div class="kpi"><span>♙</span><b>94%<small>Attendance</small></b></div>
+      <div class="kpi danger"><span>!</span><b>{{weak|length}}<small>Need Attention</small></b></div>
+    </div>
+    <section class="panel">
+      <div class="panel-title"><h2>Students Needing Attention (&lt; 40%)</h2><span class="gold-text">Weekly support queue</span></div>
+      <div class="table">
+        <div class="tr th"><span>Name</span><span>Class</span><span>Subject</span><span>Latest Test</span><span>Score</span><span>Action</span></div>
+        {% for r in weak %}
+        <div class="tr">
+          <span><b>{{r.student.name}}</b></span>
+          <span>10A</span>
+          <span>Math</span>
+          <span>Linear Equations</span>
+          <span class="red">{{r.avg}}%</span>
+          <span>
+            <button class="small-btn" onclick="openCounsel('{{r.student.id}}','{{r.student.name}}')">Counsel</button>
+            <button class="small-btn ghost" onclick="loadRecommendation('{{r.student.id}}','{{r.student.name}}')">AI Plan</button>
+          </span>
+        </div>
+        {% else %}
+        <div class="empty">No students below the attention threshold.</div>
+        {% endfor %}
+      </div>
+    </section>
+    <section class="panel">
+      <div class="panel-title"><h2>Assessment Integrity Events</h2><span>Review with context; not automatic misconduct decisions.</span></div>
+      {% for e in integrity %}
+      <div class="event-row"><span>⚠</span><b>{{e.event_type}}</b><span>{{e.detail}}</span><small>{{e.created_at.strftime('%d %b %H:%M') if e.created_at else ''}}</small></div>
+      {% else %}
+      <p class="muted">No events recorded.</p>
+      {% endfor %}
+    </section>
+  </main>
+</div>
+
+<div id="modal" class="modal">
+  <div class="modal-card">
+    <button class="close" onclick="closeModal()">×</button>
+    <h2 id="modal-title">Counselling Session</h2>
+    <p id="modal-student"></p>
+    <textarea id="counsel-note" placeholder="Enter your notes from the counselling session..."></textarea>
+    <button class="gold-btn" onclick="saveCounsel()">Save Counselling Note</button>
+    <button class="ghost-btn" onclick="getAIPlan()">✦ Get AI Recommendations</button>
+    <div id="recommendation"></div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+let currentStudent = null;
+let currentStudentName = null;
+
+function openCounsel(id, name) {
+  currentStudent = id;
+  currentStudentName = name;
+  document.getElementById('modal-title').textContent = 'Counselling Session';
+  document.getElementById('modal-student').textContent = name;
+  document.getElementById('counsel-note').value = '';
+  document.getElementById('recommendation').innerHTML = '';
+  document.getElementById('modal').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('modal').classList.remove('open');
+}
+
+async function saveCounsel() {
+  const note = document.getElementById('counsel-note').value.trim();
+  if (!note) { alert('Please enter a counselling note first.'); return; }
+  try {
+    await fetch('{{ url_for("main.teacher_note") }}', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ student_id: currentStudent, note })
+    });
+    alert('Counselling note saved.');
+  } catch(e) {
+    alert('Error saving note. Please try again.');
+  }
+}
+
+async function loadRecommendation(id, name) {
+  currentStudent = id;
+  currentStudentName = name || '';
+  document.getElementById('modal-title').textContent = 'AI Recommendation';
+  document.getElementById('modal-student').textContent = currentStudentName;
+  document.getElementById('recommendation').innerHTML = '<p class="muted">Loading recommendation…</p>';
+  document.getElementById('modal').classList.add('open');
+  try {
+    const r = await fetch('/api/teacher/recommendation/' + id);
+    const d = await r.json();
+    const obs = (d.key_observations || []).map(o => `<li>${o}</li>`).join('');
+    const plan = (d.recommended_plan || []).map(p => `<p>${p}</p>`).join('');
+    const focus = (d.practice_focus || []).map(f => `<span>${f}</span>`).join(' ');
+    document.getElementById('recommendation').innerHTML = `
+      <div class="ai-result">
+        <h3>AI Recommendation — ${d.student || ''}</h3>
+        <p><b>Mastery:</b> ${d.average || 0}%</p>
+        <h4>Key Observations</h4><ul>${obs}</ul>
+        <h4>Recommended Plan</h4>${plan}
+        <h4>Practice Focus</h4><p>${focus}</p>
+      </div>`;
+  } catch(e) {
+    document.getElementById('recommendation').innerHTML = '<p class="red">Could not load recommendation. Check AI service.</p>';
+  }
+}
+
+function getAIPlan() {
+  if (currentStudent) loadRecommendation(currentStudent, currentStudentName);
+}
+
+// Close modal on backdrop click
+document.getElementById('modal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+</script>
+{% endblock %}

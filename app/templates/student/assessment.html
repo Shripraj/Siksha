@@ -1,0 +1,78 @@
+{% extends "base.html" %}{% block title %}Assessment Mode • SIKSHA{% endblock %}{% block body_class %}assessment-body{% endblock %}{% block content %}
+<div class="test-shell" id="test-shell">
+  <header class="test-head">
+    <span class="brand mini"><span class="brand-mark">✦</span><span><b>SIKSHA</b><small>LEARN • PLAY • GROW</small></span></span>
+    <div><b>ASSESSMENT MODE</b><small>{{topic.title}} · 25 Marks</small></div>
+    <div id="timer">00:25:00</div>
+  </header>
+  <form method="post" id="assessment-form">
+    <input type="hidden" name="assessment_id" value="{{assessment.id}}">
+    <aside class="question-nav">
+      <h4>Questions</h4>
+      {% for q in questions %}
+      <button type="button" onclick="showQ({{loop.index0}})">{{loop.index}}</button>
+      {% endfor %}
+      <button class="submit-test" type="submit">Submit Assessment</button>
+    </aside>
+    <main class="question-main">
+      {% for q in questions %}
+      <section class="question-card q {% if loop.first %}active{% endif %}" data-q="{{loop.index0}}">
+        <div class="q-meta">Question {{loop.index}} <span>{{q.marks}} Mark{% if q.marks != 1 %}s{% endif %}</span></div>
+        <h2>{{q.text}}</h2>
+        {% if q.options and q.options|length > 0 %}
+          {% for o in q.options %}
+          <label class="option"><input type="radio" name="q{{q.id}}" value="{{loop.index0}}"> {{o}}</label>
+          {% endfor %}
+        {% else %}
+          <textarea name="q{{q.id}}" class="question-card" placeholder="Write your answer here..." rows="5"></textarea>
+        {% endif %}
+        {% if not loop.last %}
+        <button type="button" class="gold-btn" onclick="nextQ()">Next Question →</button>
+        {% endif %}
+      </section>
+      {% endfor %}
+      <button type="button" class="fullscreen-btn" onclick="enterFullscreen()">⛶ Enter Fullscreen</button>
+      <div class="score-note">Assessment submission is server-controlled. Answers are not sent to the browser as correct/incorrect keys.</div>
+    </main>
+  </form>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+async function enterFullscreen() {
+  try { await document.documentElement.requestFullscreen(); } catch(e) {}
+}
+const qs = [...document.querySelectorAll('.q')];
+let qi = 0;
+function showQ(i) {
+  qi = i;
+  qs.forEach(q => q.classList.toggle('active', +q.dataset.q === i));
+  document.querySelectorAll('.question-nav button:not(.submit-test)').forEach((b, idx) => b.classList.toggle('chosen', idx === qi));
+}
+function nextQ() { showQ(Math.min(qi + 1, qs.length - 1)); }
+showQ(0);
+
+let sec = 1500;
+const timerEl = document.getElementById('timer');
+const timerInterval = setInterval(() => {
+  if (sec <= 0) { clearInterval(timerInterval); document.getElementById('assessment-form').submit(); return; }
+  sec--;
+  let m = String(Math.floor(sec / 60)).padStart(2, '0'), s = String(sec % 60).padStart(2, '0');
+  timerEl.textContent = '00:' + m + ':' + s;
+}, 1000);
+
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) logIntegrity('tab_hidden', 'Student left the assessment view.');
+});
+window.addEventListener('blur', () => logIntegrity('window_blur', 'Assessment window lost focus.'));
+
+async function logIntegrity(type, detail) {
+  fetch('{{ url_for("main.integrity", assessment_id=assessment.id) }}', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ event_type: type, detail })
+  });
+}
+document.getElementById('test-shell').addEventListener('contextmenu', e => e.preventDefault());
+</script>
+{% endblock %}

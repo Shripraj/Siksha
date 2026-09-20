@@ -1,0 +1,48 @@
+{% extends "base.html" %}{% block title %}Student Quest • SIKSHA{% endblock %}{% block body_class %}student-body{% endblock %}{% block content %}
+<header class="student-nav">
+  <a class="brand" href="{{url_for('main.student_dashboard')}}"><span class="brand-mark">✦</span><span><b>SIKSHA</b><small>LEARN • PLAY • GROW</small></span></a>
+  <nav><a class="active">Home</a><a>Learn</a><a>Missions</a><a>Leaderboard</a><a>Rewards</a><a>AI Guide</a></nav>
+  <span class="fire">🔥 {{streak}}</span>
+  <span class="profile">{{current_user.name}}<small>Level {{(total_xp // 100) + 1}}</small></span>
+  <a href="{{url_for('auth.logout')}}" class="logout-mini">↪</a>
+</header>
+<main class="student-main">
+  <section class="warrior-card">
+    <div class="portrait">♞<span>LVL {{(total_xp // 100) + 1}}</span></div>
+    <h1>{{current_user.name}}</h1>
+    <p>The Learning Warrior</p>
+    <div class="xpbar large"><i style="width:{{ [total_xp % 100, 100] | min }}%"></i></div>
+    <small>{{total_xp}} XP · Next level at {{((total_xp // 100) + 1) * 100}} XP</small>
+    <div class="warrior-stats">
+      <b>♜ {{completed}}<small>Quests Completed</small></b>
+      <b>🔥 {{streak}}<small>Current Streak</small></b>
+      <b>♛ {{total_xp}}<small>Rank XP</small></b>
+    </div>
+    <em>"Discipline today, a stronger tomorrow."</em>
+  </section>
+  <section class="quest-area">
+    <div class="quest-heading">
+      <div>
+        <span class="eyebrow">NEXT QUEST</span>
+        <h2>QUEST PATH</h2>
+        <p>Mathematics · Algebra</p>
+      </div>
+      <div class="progress-ring">{{avg}}%<small>Mastery</small></div>
+    </div>
+    <div class="quest-path-full">
+      {% for t in topics %}
+      {% set p = pmap[t.id] %}
+      <a class="quest-node {{p.status}}" href="{{url_for('main.topic', topic_id=t.id)}}">
+        <span class="node-num">{{loop.index}}</span>
+        <div><b>{{t.title}}</b><small>{{p.status | replace('_',' ') | title}}</small></div>
+        <strong>{{p.mastery | int}}%</strong>
+      </a>
+      {% else %}
+      <div class="empty">No quests available yet. Your teacher will unlock topics soon.</div>
+      {% endfor %}
+    </div>
+    <div class="zone-reward"><span>✦</span><b>Zone Reward</b><small>Unlock Golden Scholar Badge</small></div>
+    <div class="keep-going">Keep Going!<small>Knowledge is your greatest weapon.</small></div>
+  </section>
+</main>
+{% endblock %}

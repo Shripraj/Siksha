@@ -1,0 +1,81 @@
+{% extends "base.html" %}{% block title %}Register • SIKSHA{% endblock %}{% block body_class %}auth-body{% endblock %}
+{% block content %}
+<style>
+  .auth-body {
+    background-image:
+      linear-gradient(135deg, #061016ee 0%, #07131acc 40%, #050a0bdd 100%),
+      url('/static/img/hero-bg.jpg') !important;
+    background-size: cover !important;
+    background-position: center center !important;
+    background-attachment: fixed !important;
+  }
+</style>
+<div class="auth-shell">
+  <a class="brand auth-brand" href="{{ url_for('main.home') }}">
+    <span class="brand-mark">✦</span>
+    <span><b>SIKSHA</b><small>LEARN • PLAY • GROW</small></span>
+  </a>
+  <div class="auth-card register-card">
+    <div class="auth-symbol">✦</div>
+    <h1>BEGIN YOUR JOURNEY</h1>
+    <p class="muted">Create your SIKSHA account. Your details are saved securely for your next login.</p>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, msg in messages %}
+      <div class="flash {{category}}">{{msg}}</div>
+      {% endfor %}
+    {% endwith %}
+    <form method="post">
+      <div class="two">
+        <label>FULL NAME<input name="name" required placeholder="Your full name"></label>
+        <label>PORTAL
+          <select name="role" id="reg-role">
+            <option value="student">Student</option>
+            <option value="teacher">Teacher</option>
+            <option value="school">School Admin</option>
+          </select>
+        </label>
+      </div>
+      <label>EMAIL ID<input type="email" name="email" required autocomplete="email" placeholder="you@example.com"></label>
+      <div class="two">
+        <label>PASSWORD<input type="password" name="password" required minlength="6" autocomplete="new-password" placeholder="Min. 6 characters"></label>
+        <label>CONFIRM PASSWORD<input type="password" name="confirm_password" required minlength="6" autocomplete="new-password" placeholder="Repeat password"></label>
+      </div>
+      <div id="student-fields" class="role-fields">
+        <div class="two">
+          <label>CLASS<input name="class_name" placeholder="10A"></label>
+          <label>ROLL NO<input name="roll_no" placeholder="17"></label>
+        </div>
+      </div>
+      <div id="teacher-fields" class="role-fields hidden">
+        <div class="two">
+          <label>EMPLOYEE CODE<input name="employee_code" placeholder="T-104"></label>
+          <label>SUBJECTS<input name="subjects" placeholder="Mathematics, Science"></label>
+        </div>
+      </div>
+      <div id="school-fields" class="role-fields hidden">
+        <label>SCHOOL NAME<input name="school_name" placeholder="Your school name"></label>
+      </div>
+      <button class="gold-btn full" type="submit">CREATE ACCOUNT →</button>
+    </form>
+    <div class="auth-links"><span>Already registered?</span><a href="{{ url_for('auth.login') }}">Sign in</a></div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+function toggleRegisterFields() {
+  const r = document.getElementById('reg-role');
+  if (!r) return;
+  document.querySelectorAll('.role-fields').forEach(x => x.classList.add('hidden'));
+  const target = document.getElementById(r.value + '-fields');
+  if (target) target.classList.remove('hidden');
+}
+document.addEventListener('DOMContentLoaded', () => {
+  const reg = document.getElementById('reg-role');
+  if (reg) {
+    reg.addEventListener('change', toggleRegisterFields);
+    toggleRegisterFields();
+  }
+});
+</script>
+{% endblock %}
